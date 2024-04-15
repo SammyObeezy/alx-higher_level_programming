@@ -1,26 +1,28 @@
 #!/usr/bin/python3
-"""adds the State object “California”
-with the City “San Francisco”
-to the database hbtn_0e_100_usa"""
+from relationship_state import Base, State
+from relationship_city import City
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import create_engine
+import sys
+"""
+    Module that performs MySQL query through MySQLAlchemy.
+"""
+
 
 if __name__ == "__main__":
+    db_uri = 'mysql+mysqldb://{}:{}@localhost/{}'.format(
+                                                            sys.argv[1],
+                                                            sys.argv[2],
+                                                            sys.argv[3])
 
-    import sys
-    from relationship_state import Base, State
-    from relationship_city import City
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import Session
-    from sqlalchemy.schema import Table
-
-    engine = create_engine('mysql+mysqldb://{}:{}@localhost/{}'
-                           .format(sys.argv[1], sys.argv[2],
-                                   sys.argv[3]), pool_pre_ping=True)
+    engine = create_engine(db_uri, pool_pre_ping=True)
     Base.metadata.create_all(engine)
 
-    session = Session(engine)
-    new_city = City(name='San Francisco')
-    new = State(name='California')
-    new.cities.append(new_city)
-    session.add_all([new, new_city])
-    session.commit()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    for a_city in session.query(City).order_by(City.id):
+            print("{}: {} -> {}".format(a_city.id, a_city.name,
+                  a_city.state.name))
+
     session.close()
