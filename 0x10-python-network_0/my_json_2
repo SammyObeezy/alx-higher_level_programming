@@ -1,0 +1,5 @@
+guillaume@ubuntu:~/0x10$ cat my_json_2
+{
+    "name": "John Doe",
+    "age": 33,
+}
